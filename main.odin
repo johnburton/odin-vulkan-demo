@@ -1,5 +1,7 @@
 package main
 
+import vma "odin-vma"
+
 import fmt  "core:fmt"
 
 import glfw "vendor:glfw"
@@ -24,6 +26,8 @@ fence           : [FRAMES_IN_FLIGHT]vk.Fence
 
 command_pool    : [FRAMES_IN_FLIGHT]vk.CommandPool
 command_buffer  : [FRAMES_IN_FLIGHT]vk.CommandBuffer
+
+allocator       : vma.Allocator
 
 init_main_window :: proc() {
 	glfw.Init()
@@ -300,7 +304,31 @@ main :: proc() {
 	init_vulkan_swapchain()
 	init_vulkan_sync()
 	init_vulkan_cmd_buffers()
+	init_vma()
 	run_event_loop()
+}
+
+init_vma :: proc() {
+	vulkan_functions := vma.create_vulkan_functions();
+
+	create_info := vma.AllocatorCreateInfo {
+		vulkanApiVersion = vk.API_VERSION_1_2,
+		physicalDevice = physical_device,
+		device = device,
+		instance = instance,
+		pVulkanFunctions = &vulkan_functions,
+	};
+
+	if vma.CreateAllocator(&create_info, &allocator) != .SUCCESS {
+		fmt.panicf("Failed to CreateAllocator\n");
+	}
+
+
+	stats_string: cstring
+	vma.BuildStatsString(allocator, &stats_string, false)
+	fmt.printf("[INFO] {}\n", stats_string)
+
+
 }
 
 check_vk :: proc(result: vk.Result, loc := #caller_location) {
