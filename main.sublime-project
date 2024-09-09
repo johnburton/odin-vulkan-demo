@@ -1,0 +1,18 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+		},
+		{
+			"path": "/home/john/odin/vendor/vulkan"
+		},
+	],
+	"build_systems":
+	[
+		{
+			"name": "odin",
+			"shell_cmd": "odin run .",
+		}
+	],
+}
